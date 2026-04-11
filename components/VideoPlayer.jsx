@@ -1,20 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { HiPlay, HiVolumeUp, HiVolumeOff } from "react-icons/hi";
 import { RiLiveLine, RiFullscreenLine, RiPictureInPictureLine, RiLoader4Line } from "react-icons/ri";
 
 export default function VideoPlayer({ youtubeId, title }) {
-  const [started, setStarted] = useState(false);
-  const [loaded,  setLoaded]  = useState(false);
-  const [muted,   setMuted]   = useState(false);
+  const [started,      setStarted]      = useState(false);
+  const [loaded,       setLoaded]       = useState(false);
+  const [muted,        setMuted]        = useState(false);
+  const [postPlayMuted, setPostPlayMuted] = useState(false);
+  const playerWrapperRef = useRef(null);
 
   const thumbUrl = `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
-  const embedUrl = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0&modestbranding=1&color=white${muted ? "&mute=1" : ""}`;
+  const embedUrl = `https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0&modestbranding=1&color=white${postPlayMuted ? "&mute=1" : ""}`;
+
+  const handleFullscreen = () => {
+    if (!playerWrapperRef.current) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    } else {
+      playerWrapperRef.current.requestFullscreen().catch(err => {
+        console.warn('Fullscreen failed:', err);
+      });
+    }
+  };
+
+  const handlePiP = () => {
+    console.warn('Picture-in-Picture is not supported for embedded YouTube players.');
+  };
 
   return (
     <div
+      ref={playerWrapperRef}
       className="relative w-full overflow-hidden"
       style={{
         borderRadius: "20px",
@@ -82,7 +100,7 @@ export default function VideoPlayer({ youtubeId, title }) {
         {/* ── YouTube iframe ── */}
         {started && (
           <motion.iframe
-            key="frame"
+            key={postPlayMuted ? 'muted' : 'unmuted'}
             initial={{ opacity: 0 }}
             animate={{ opacity: loaded ? 1 : 0 }}
             transition={{ duration: 0.5 }}
@@ -101,6 +119,26 @@ export default function VideoPlayer({ youtubeId, title }) {
             <motion.div animate={{ rotate: 360 }} transition={{ duration: 0.9, repeat: Infinity, ease: "linear" }}>
               <RiLoader4Line className="w-8 h-8 text-brand" />
             </motion.div>
+          </div>
+        )}
+
+        {/* ── Post-play mute toggle (bottom-right, visible only when playing) ── */}
+        {started && loaded && (
+          <div
+            className="absolute bottom-3 right-3 z-30"
+          >
+            <button
+              onClick={() => setPostPlayMuted((m) => !m)}
+              className="flex items-center justify-center w-8 h-8 rounded-xl transition-all"
+              style={{
+                background: "rgba(0,0,0,0.6)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                backdropFilter: "blur(8px)",
+                color: "rgba(255,255,255,0.7)",
+              }}
+            >
+              {postPlayMuted ? <HiVolumeOff className="w-4 h-4" /> : <HiVolumeUp className="w-4 h-4" />}
+            </button>
           </div>
         )}
       </div>
@@ -128,12 +166,11 @@ export default function VideoPlayer({ youtubeId, title }) {
             </button>
           </div>
           <div className="flex items-center gap-3" style={{ color: "rgba(255,255,255,0.4)" }}>
-            <RiPictureInPictureLine className="w-4 h-4 cursor-pointer hover:text-white transition-colors" />
-            <RiFullscreenLine className="w-4 h-4 cursor-pointer hover:text-white transition-colors" />
+            <RiPictureInPictureLine className="w-4 h-4 cursor-pointer hover:text-white transition-colors" onClick={handlePiP} />
+            <RiFullscreenLine className="w-4 h-4 cursor-pointer hover:text-white transition-colors" onClick={handleFullscreen} />
           </div>
         </div>
       )}
     </div>
   );
 }
-

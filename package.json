@@ -1,6 +1,7 @@
 {
-  "name": "livestream-platform",
-  "version": "0.1.0",
+  "name": "pulse",
+  "version": "1.0.0",
+  "description": "Frontend-only livestream browsing platform",
   "private": true,
   "scripts": {
     "dev": "next dev",

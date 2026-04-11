@@ -1,4 +1,4 @@
-// File: D:\livestream1\livestream1\livestream\app\page.jsx
+// File: F:\Ls\Livestream\app\page.jsx
 import * as entry from '../../../app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

@@ -9,12 +9,13 @@ import {
   HiArrowLeft, HiHeart, HiOutlineHeart, HiShare, HiEye, HiCalendar, HiClock,
 } from "react-icons/hi";
 import { MdVerified } from "react-icons/md";
-import { RiUserAddLine, RiLiveLine } from "react-icons/ri";
+import { RiUserAddLine, RiLiveLine, RiCalendarCheckLine, RiHistoryLine } from "react-icons/ri";
 import Navbar from "@/components/Navbar";
 import VideoPlayer from "@/components/VideoPlayer";
 import ChatBox from "@/components/ChatBox";
 import EventCard from "@/components/EventCard";
 import { events } from "@/data/events";
+import { formatViewers } from "@/lib/utils";
 
 const catColors = {
   Tech:   { color: "#38bdf8", bg: "rgba(56,189,248,0.1)",   border: "rgba(56,189,248,0.25)" },
@@ -65,7 +66,16 @@ export default function EventPage({ params }) {
   }
 
   const handleLike = () => setLiked((p) => { setLikeCount((c) => (p ? c - 1 : c + 1)); return !p; });
-  const handleShare = () => { setShowShareToast(true); setTimeout(() => setShowShareToast(false), 2500); };
+  const handleShare = async () => {
+    const url = window.location.origin + '/events/' + event.id;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch (err) {
+      console.warn('Clipboard write failed:', err);
+    }
+    setShowShareToast(true);
+    setTimeout(() => setShowShareToast(false), 2500);
+  };
   const fmt = (n) => n >= 1_000_000 ? `${(n/1_000_000).toFixed(1)}M` : n >= 1_000 ? `${(n/1_000).toFixed(1)}K` : String(n);
   const cat = catColors[event.category] ?? { color: "#888", bg: "rgba(128,128,128,0.1)", border: "rgba(128,128,128,0.25)" };
   const fmtDate = new Date(event.date).toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
@@ -113,7 +123,7 @@ export default function EventPage({ params }) {
         </motion.div>
 
         {/* Main layout */}
-        <div className="flex flex-col lg:flex-row gap-5 mb-10">
+        <div className="flex flex-col lg:flex-row gap-2 mb-10">
 
           {/* ── Left: video + info ── */}
           <motion.div
@@ -124,11 +134,29 @@ export default function EventPage({ params }) {
           >
             <VideoPlayer youtubeId={event.youtubeId} title={event.title} />
 
+            {/* VOD badge for ended events */}
+            {event.status === "ended" && (
+              <div className="flex items-center gap-2 mt-2.5">
+                <span
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold font-mono tracking-[0.08em]"
+                  style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.12)", color: "var(--text-secondary)" }}
+                >
+                  <RiHistoryLine className="w-3 h-3" />
+                  VOD · Replay
+                </span>
+                {event.duration && (
+                  <span className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>
+                    {event.duration}
+                  </span>
+                )}
+              </div>
+            )}
+
             {/* Info panel */}
             <GlassPanel className="mt-5 p-5 sm:p-7">
               {/* Status chips */}
               <div className="flex flex-wrap items-center gap-2 mb-4">
-                {event.trending && (
+                {event.status === "live" && (
                   <span
                     className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold font-mono tracking-[0.08em]"
                     style={{ background: "rgba(6,182,212,0.12)", border: "1px solid rgba(6,182,212,0.3)", color: "var(--brand)" }}
@@ -154,17 +182,43 @@ export default function EventPage({ params }) {
               </h1>
 
               {/* Stats */}
-              <div className="flex flex-wrap gap-3 mb-6 pb-6" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+              <div className="flex flex-wrap gap-3 mb-6 pb-6" style={{ borderBottom: event.status === "upcoming" ? "none" : "1px solid rgba(255,255,255,0.06)" }}>
                 {[
-                  { icon: HiEye,      label: `${event.viewers} watching` },
+                  { icon: HiEye,      label: `${formatViewers(event.viewers)} watching` },
                   { icon: HiCalendar, label: fmtDate },
                   { icon: HiClock,    label: event.time },
+                  ...(event.status === "ended" && event.duration
+                    ? [{ icon: RiHistoryLine, label: `Stream ran for ${event.duration}` }]
+                    : []
+                  ),
                 ].map(({ icon: Icon, label }) => (
                   <div key={label} className="stat-badge">
                     <Icon className="w-3 h-3" />{label}
                   </div>
                 ))}
               </div>
+
+              {/* scheduledFor — upcoming events only */}
+              {event.status === "upcoming" && event.scheduledFor && (
+                <div
+                  className="flex items-center gap-2.5 px-4 py-3 rounded-2xl mb-6"
+                  style={{
+                    background: "rgba(6,182,212,0.07)",
+                    border: "1px solid rgba(6,182,212,0.18)",
+                    borderBottom: "1px solid rgba(255,255,255,0.06)",
+                  }}
+                >
+                  <RiCalendarCheckLine className="w-4 h-4 flex-shrink-0" style={{ color: "var(--brand)" }} />
+                  <div>
+                    <p className="text-[10px] font-mono tracking-[0.1em] uppercase mb-0.5" style={{ color: "var(--brand)" }}>
+                      Scheduled For
+                    </p>
+                    <p className="text-[14px] font-semibold" style={{ color: "var(--text-primary)" }}>
+                      {event.scheduledFor}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Action buttons */}
               <div className="flex flex-wrap gap-3 mb-6">
@@ -288,7 +342,7 @@ export default function EventPage({ params }) {
                 View all →
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-2 gap-y-6">
               {related.map((e, i) => <EventCard key={e.id} event={e} index={i} />)}
             </div>
           </motion.section>

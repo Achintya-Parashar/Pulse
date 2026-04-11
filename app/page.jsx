@@ -1,13 +1,17 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { HiSearch, HiX } from "react-icons/hi";
+import { HiSearch } from "react-icons/hi";
 import { RiFireLine, RiMicLine, RiGamepadLine, RiCpuLine } from "react-icons/ri";
 import Navbar from "@/components/Navbar";
 import EventCard from "@/components/EventCard";
 import HeroBanner from "@/components/HeroBanner";
-import { events, categories } from "@/data/events";
+import { events } from "@/data/events";
+
+const CATEGORIES = ["All", "Tech", "Music", "Gaming"];
+const STATUSES = ["All", "Live", "Upcoming", "Ended"];
 
 const catIcons = {
   All:      RiFireLine,
@@ -31,10 +35,10 @@ function Footer() {
       <div className="max-w-[1440px] mx-auto px-5 sm:px-8 pt-10">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-xl bg-brand flex items-center justify-center shadow-glow-sm">
+            <div className="w-7 h-7 rounded-xl flex items-center justify-center shadow-glow-sm" style={{ background: "rgba(30, 16, 226, 0.46)" }}>
               <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
             </div>
-            <span className="text-[17px] font-black tracking-[-0.04em] gradient-text">PULSE</span>
+            <span className="text-[17px] font-black tracking-[-0.04em]" style={{ color: "rgba(30, 16, 226, 0.46)" }}>PULSE</span>
           </div>
           <div className="flex items-center gap-6 text-[12px]" style={{ color: "var(--text-muted)" }}>
             {["About","Privacy","Terms","Help","Careers"].map(l => (
@@ -48,27 +52,36 @@ function Footer() {
   );
 }
 
-export default function HomePage() {
-  const [search,         setSearch]         = useState("");
+function HomeContent() {
+  // const [search, setSearch] = useState(""); -> removed
+  const searchParams = useSearchParams();
+  const search = searchParams.get("q") || "";
   const [activeCategory, setActiveCategory] = useState("All");
+  const [activeStatus,   setActiveStatus]   = useState("All");
+  const [trendingSort,   setTrendingSort]   = useState(false);
 
   const featured = useMemo(() => events.find((e) => e.id === "10") ?? events[0], []);
 
   const filtered = useMemo(() => {
     let list = [...events];
-    if (activeCategory === "Trending") list = list.filter((e) => e.trending);
-    else if (activeCategory !== "All")  list = list.filter((e) => e.category === activeCategory);
+    if (activeCategory !== "All") list = list.filter((e) => e.category === activeCategory);
+    
+    if (activeStatus !== "All") {
+      const statusMap = { Live: "live", Upcoming: "upcoming", Ended: "ended" };
+      list = list.filter((e) => e.status === statusMap[activeStatus]);
+    }
+    
     if (search.trim()) {
       const q = search.toLowerCase();
-      list = list.filter((e) =>
-        e.title.toLowerCase().includes(q) ||
-        e.category.toLowerCase().includes(q) ||
-        e.host.toLowerCase().includes(q) ||
-        e.tags.some((t) => t.toLowerCase().includes(q))
-      );
+      list = list.filter((e) => e.title.toLowerCase().includes(q));
+    }
+    
+    if (trendingSort) {
+      const statusOrder = { live: 1, upcoming: 2, ended: 3 };
+      list.sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
     }
     return list;
-  }, [search, activeCategory]);
+  }, [search, activeCategory, activeStatus, trendingSort]);
 
   return (
     <div className="min-h-screen relative" style={{ background: "var(--bg)" }}>
@@ -146,67 +159,72 @@ export default function HomePage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.18 }}
-          className="flex flex-col sm:flex-row gap-3 mb-8"
+          className="flex flex-col gap-4 mb-8"
         >
-          {/* Search */}
-          <div className="relative flex-1 max-w-[340px]">
-            <HiSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" style={{ color: "var(--text-muted)" }} />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search events, artists, hosts..."
-              className="w-full rounded-2xl pl-10 pr-9 py-2.5 text-[13px] outline-none transition-all"
-              style={{
-                background: "rgba(255,255,255,0.04)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                color: "var(--text-primary)",
-                caretColor: "var(--brand)",
-              }}
-              onFocus={(e) => { e.target.style.borderColor = "rgba(230,57,70,0.4)"; e.target.style.background = "rgba(255,255,255,0.06)"; }}
-              onBlur={(e)  => { e.target.style.borderColor = "rgba(255,255,255,0.08)"; e.target.style.background = "rgba(255,255,255,0.04)"; }}
-            />
-            <AnimatePresence>
-              {search && (
-                <motion.button
-                  initial={{ opacity: 0, scale: 0.7 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.7 }}
-                  onClick={() => setSearch("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
-                  style={{ color: "var(--text-muted)" }}
-                >
-                  <HiX className="w-3.5 h-3.5" />
-                </motion.button>
-              )}
-            </AnimatePresence>
+          {/* Top Row: Search and Trending Sort */}
+          <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+            {/* Trending Sort Toggle */}
+            <label className="flex items-center gap-2 cursor-pointer text-[13px] font-semibold transition-colors" style={{ color: trendingSort ? "var(--brand)" : "var(--text-secondary)" }}>
+              <input
+                type="checkbox"
+                checked={trendingSort}
+                onChange={(e) => setTrendingSort(e.target.checked)}
+                className="w-4 h-4 rounded cursor-pointer"
+                style={{ accentColor: "var(--brand)" }}
+              />
+              Trending Sort
+            </label>
           </div>
 
-          {/* Category pills */}
-          <div className="flex items-center gap-2 flex-wrap">
-            {categories.map((cat) => {
-              const Icon    = catIcons[cat] ?? RiFireLine;
-              const accent  = catAccent[cat] ?? catAccent.All;
-              const isActive = activeCategory === cat;
-              return (
-                <motion.button
-                  key={cat}
-                  onClick={() => setActiveCategory(cat)}
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-2xl text-[13px] font-semibold transition-all"
-                  style={{
-                    background: isActive ? accent.activeGrad : "rgba(255,255,255,0.04)",
-                    border: `1px solid ${isActive ? accent.active + "50" : "rgba(255,255,255,0.07)"}`,
-                    color: isActive ? accent.active : "var(--text-secondary)",
-                    boxShadow: isActive ? `0 0 24px ${accent.active}25, inset 0 1px 0 ${accent.active}20` : "none",
-                  }}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {cat}
-                </motion.button>
-              );
-            })}
+          {/* Bottom Row: Category & Status */}
+          <div className="flex flex-col lg:flex-row gap-4 justify-between items-start lg:items-center">
+            {/* Category pills */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {CATEGORIES.map((cat) => {
+                const Icon    = catIcons[cat] ?? RiFireLine;
+                const accent  = catAccent[cat] ?? catAccent.All;
+                const isActive = activeCategory === cat;
+                return (
+                  <motion.button
+                    key={cat}
+                    onClick={() => setActiveCategory(cat)}
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.96 }}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-2xl text-[13px] font-semibold transition-all"
+                    style={{
+                      background: isActive ? accent.activeGrad : "rgba(255,255,255,0.04)",
+                      border: `1px solid ${isActive ? accent.active + "50" : "rgba(255,255,255,0.07)"}`,
+                      color: isActive ? accent.active : "var(--text-secondary)",
+                      boxShadow: isActive ? `0 0 24px ${accent.active}25, inset 0 1px 0 ${accent.active}20` : "none",
+                    }}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                    {cat}
+                  </motion.button>
+                );
+              })}
+            </div>
+
+            {/* Status pills */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {STATUSES.map((status) => {
+                const isActive = activeStatus === status;
+                return (
+                  <button
+                    key={status}
+                    onClick={() => setActiveStatus(status)}
+                    className="px-3 py-1.5 rounded-xl text-[12px] font-medium transition-all"
+                    style={{
+                      background: isActive ? "rgba(6,182,212,0.1)" : "rgba(255,255,255,0.03)",
+                      border: `1px solid ${isActive ? "rgba(6,182,212,0.35)" : "rgba(255,255,255,0.06)"}`,
+                      color: isActive ? "var(--brand)" : "var(--text-muted)",
+                    }}
+                  >
+                    {status}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </motion.div>
 
@@ -227,7 +245,7 @@ export default function HomePage() {
 
         {/* Event grid */}
         {filtered.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-2 gap-y-6">
             {filtered.map((event, i) => (
               <EventCard key={event.id} event={event} index={i} />
             ))}
@@ -244,10 +262,12 @@ export default function HomePage() {
             >
               <HiSearch className="w-7 h-7" style={{ color: "var(--text-muted)" }} />
             </div>
-            <h3 className="text-[18px] font-bold mb-2" style={{ color: "var(--text-primary)" }}>No results found</h3>
-            <p className="text-[13px] mb-5" style={{ color: "var(--text-secondary)" }}>Try a different search or category</p>
+            <h3 className="text-[18px] font-bold mb-2" style={{ color: "var(--text-primary)" }}>
+              {search.trim() ? `No events found for '${search}'` : "No results found"}
+            </h3>
+            <p className="text-[13px] mb-5" style={{ color: "var(--text-secondary)" }}>Try removing search or filters</p>
             <button
-              onClick={() => { setSearch(""); setActiveCategory("All"); }}
+              onClick={() => { window.history.replaceState(null, '', '/'); setActiveCategory("All"); setActiveStatus("All"); setTrendingSort(false); }}
               className="px-5 py-2.5 rounded-2xl text-[13px] font-semibold transition-all"
               style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)", color: "var(--text-secondary)" }}
             >
@@ -262,3 +282,11 @@ export default function HomePage() {
   );
 }
 
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+      <HomeContent />
+    </Suspense>
+  );
+}
