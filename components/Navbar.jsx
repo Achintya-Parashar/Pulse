@@ -108,7 +108,9 @@ export default function Navbar() {
                   <RiLiveLine className="w-4 h-4 text-white" />
                   <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full live-dot border-2 border-[var(--bg)]" style={{ background: "rgba(30, 16, 226, 0.46)" }} />
                 </motion.div>
-                <span className="text-[19px] font-black tracking-[-0.04em]" style={{ color: "rgba(30, 16, 226, 0.46)" }}>PULSE</span>
+                <span className="text-[22px] sm:text-[24px] font-extrabold tracking-[-0.05em] brand-logo">
+                  StreamVerse<span className="brand-logo-x">X</span>
+                </span>
               </Link>
             </div>
 

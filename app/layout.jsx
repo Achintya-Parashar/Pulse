@@ -1,7 +1,7 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "PULSE — Live Event Streaming",
+  title: "StreamVerse X — Live Event Streaming",
   description: "Watch the world's biggest live events in real time",
 };
 

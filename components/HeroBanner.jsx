@@ -48,7 +48,7 @@ export default function HeroBanner() {
 
   return (
     <div
-      className="relative w-full overflow-hidden cursor-pointer group"
+      className="relative w-full overflow-hidden cursor-pointer group hero-float"
       style={{ borderRadius: "24px", minHeight: "clamp(360px, 46vw, 540px)", background: "#000000" }}
       onClick={() => router.push(`/events/${event.id}`)}
     >
@@ -127,8 +127,11 @@ export default function HeroBanner() {
           {/* Title */}
           <motion.h1
             {...stagger(0.18)}
-            className="font-black text-[clamp(1.6rem,4.5vw,3.5rem)] leading-[1.05] tracking-[-0.03em] text-white mb-4 max-w-3xl"
-            style={{ textShadow: "0 2px 24px rgba(0,0,0,0.8)" }}
+            className="font-extrabold font-display text-[clamp(2.8rem,7vw,5.8rem)] leading-[0.98] tracking-[-0.06em] mb-4 max-w-3xl bg-clip-text text-transparent"
+            style={{
+              backgroundImage: "linear-gradient(120deg, #7dd3fc 0%, #c084fc 45%, #e2e8f0 100%)",
+              textShadow: "0 16px 40px rgba(0, 0, 0, 0.4)",
+            }}
           >
             {event.title}
           </motion.h1>

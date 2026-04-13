@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { HiSearch } from "react-icons/hi";
+import { HiSearch, HiX } from "react-icons/hi";
 import { RiFireLine, RiMicLine, RiGamepadLine, RiCpuLine } from "react-icons/ri";
 import Navbar from "@/components/Navbar";
 import EventCard from "@/components/EventCard";

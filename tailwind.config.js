@@ -8,8 +8,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans:    ["'Outfit'", "sans-serif"],
-        display: ["'Outfit'", "sans-serif"],
+        sans:    ["'Space Grotesk'", "'Outfit'", "sans-serif"],
+        display: ["'Space Grotesk'", "'Outfit'", "sans-serif"],
         serif:   ["'Playfair Display'", "serif"],
         mono:    ["'IBM Plex Mono'", "monospace"],
       },

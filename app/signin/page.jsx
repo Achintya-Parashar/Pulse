@@ -84,7 +84,7 @@ export default function SignInPage() {
       >
         {/* Wordmark */}
         <div className="text-center mb-6">
-          <span className="text-[32px] font-black tracking-[-0.04em] gradient-text">PULSE</span>
+          <span className="text-[32px] font-black tracking-[-0.04em] brand-logo">StreamVerse<span className="brand-logo-x">X</span></span>
         </div>
 
         {/* Heading */}
@@ -198,7 +198,7 @@ export default function SignInPage() {
 
         {/* Bottom line */}
         <p className="text-center text-[11px] mt-5" style={{ color: "var(--text-muted)" }}>
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link
             href="/golive"
             className="font-semibold transition-colors"

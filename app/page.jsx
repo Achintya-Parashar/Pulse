@@ -38,14 +38,14 @@ function Footer() {
             <div className="w-7 h-7 rounded-xl flex items-center justify-center shadow-glow-sm" style={{ background: "rgba(30, 16, 226, 0.46)" }}>
               <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
             </div>
-            <span className="text-[17px] font-black tracking-[-0.04em]" style={{ color: "rgba(30, 16, 226, 0.46)" }}>PULSE</span>
+            <span className="text-[18px] font-bold tracking-[-0.04em] brand-logo">StreamVerse<span className="brand-logo-x">X</span></span>
           </div>
           <div className="flex items-center gap-6 text-[12px]" style={{ color: "var(--text-muted)" }}>
             {["About","Privacy","Terms","Help","Careers"].map(l => (
               <a key={l} href="#" className="hover:text-white transition-colors duration-200">{l}</a>
             ))}
           </div>
-          <p className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>© 2025 PULSE Inc.</p>
+          <p className="text-[11px] font-mono" style={{ color: "var(--text-muted)" }}>© 2025 StreamVerse X Inc.</p>
         </div>
       </div>
     </footer>
@@ -84,7 +84,7 @@ function HomeContent() {
   }, [search, activeCategory, activeStatus, trendingSort]);
 
   return (
-    <div className="min-h-screen relative" style={{ background: "var(--bg)" }}>
+    <div className="min-h-screen relative animated-screen" style={{ background: "var(--bg)" }}>
       {/* ── Ambient background orbs ── */}
       <div className="pointer-events-none select-none fixed inset-0 z-0 overflow-hidden">
         {/* Top-left brand cyan orb */}

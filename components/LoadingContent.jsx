@@ -6,7 +6,7 @@ export default function LoadingContent() {
       className="min-h-screen flex flex-col items-center justify-center gap-5"
       style={{ background: "var(--bg)" }}
     >
-      <span className="text-[26px] font-black tracking-[-0.04em] gradient-text">PULSE</span>
+      <span className="text-[26px] font-black tracking-[-0.04em] brand-logo">StreamVerse<span className="brand-logo-x">X</span></span>
 
       <div className="flex items-center gap-1.5">
         {[0, 1, 2].map((i) => (

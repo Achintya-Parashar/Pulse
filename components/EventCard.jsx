@@ -158,13 +158,13 @@ export default function EventCard({ event, index = 0 }) {
         src={event.image}
         alt={event.title}
         fill
-        className="object-cover transition-transform duration-700"
+        className="object-cover transition-transform duration-700 group-hover:scale-105"
         style={{ transform: "scale(1)", opacity: imgLoaded ? 1 : 0 }}
         onLoad={() => setImgLoaded(true)}
         sizes="(max-width:640px) 100vw, (max-width:1024px) 50vw, 25vw"
       />
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 image-overlay-gradient"
         style={{
           background: `linear-gradient(to top, ${cat.fade} 0%, rgba(12,17,32,0.85) 15%, rgba(12,17,32,0.1) 60%, transparent 100%)`,
         }}
@@ -301,11 +301,15 @@ export default function EventCard({ event, index = 0 }) {
       <motion.article
         initial={{ opacity: 0, y: 28, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5, delay: index * 0.055, ease: [0.22, 1, 0.36, 1] }}
-        className="rounded-2xl cursor-pointer overflow-hidden aspect-video relative"
+        whileHover={{ scale: 1.035, y: -4 }}
+        transition={{ duration: 0.48, delay: index * 0.055, ease: [0.22, 1, 0.36, 1] }}
+        className="rounded-2xl cursor-pointer overflow-hidden aspect-video relative glass-card-strong glow-card card-shine group"
         style={{
-          background: "rgba(12,17,32,0.75)",
-          border: "1px solid rgba(255,255,255,0.06)",
+          background: "rgba(12,17,32,0.48)",
+          border: "1px solid rgba(255,255,255,0.16)",
+          backdropFilter: "blur(18px)",
+          WebkitBackdropFilter: "blur(18px)",
+          boxShadow: "inset 0 0 24px rgba(255,255,255,0.05), 0 18px 48px rgba(56,189,248,0.18)",
         }}
       >
         {thumbnailJSX}

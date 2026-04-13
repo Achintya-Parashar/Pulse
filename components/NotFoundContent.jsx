@@ -12,7 +12,7 @@ export default function NotFoundContent() {
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="flex flex-col items-center text-center"
       >
-        <span className="text-[28px] font-black tracking-[-0.04em] gradient-text mb-6">PULSE</span>
+        <span className="text-[28px] font-black tracking-[-0.04em] brand-logo mb-6">StreamVerse<span className="brand-logo-x">X</span></span>
 
         <p
           className="text-[100px] sm:text-[140px] font-black leading-none tracking-[-0.05em] font-mono gradient-text"
@@ -21,11 +21,11 @@ export default function NotFoundContent() {
         </p>
 
         <h1 className="text-[22px] sm:text-[28px] font-black tracking-[-0.025em] mt-4 mb-3" style={{ color: "var(--text-primary)" }}>
-          This stream doesn't exist.
+          This stream doesn&apos;t exist.
         </h1>
 
         <p className="text-[14px] max-w-[340px] mb-8" style={{ color: "var(--text-muted)" }}>
-          The event you're looking for may have ended or never went live.
+          The event you&apos;re looking for may have ended or never went live.
         </p>
 
         <Link

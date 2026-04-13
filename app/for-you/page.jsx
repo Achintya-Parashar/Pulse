@@ -104,7 +104,7 @@ export default function ForYouPage() {
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="flex flex-col items-center justify-center py-20 text-center"
             >
-              <span className="text-[28px] font-black tracking-[-0.04em] gradient-text mb-6">PULSE</span>
+              <span className="text-[28px] font-black tracking-[-0.04em] brand-logo mb-6">StreamVerse<span className="brand-logo-x">X</span></span>
               <h1 className="text-[28px] sm:text-[36px] font-black tracking-[-0.03em] mb-2" style={{ color: "var(--text-primary)" }}>
                 What do you love?
               </h1>
